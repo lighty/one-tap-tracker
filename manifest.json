@@ -1,6 +1,6 @@
 {
-  "id": "pebble-tracker",
-  "name": "Pebble Tracker",
+  "id": "one-tap-tracker",
+  "name": "One-Tap Tracker",
   "version": "0.0.10",
   "minAppVersion": "1.5.0",
   "description": "Track custom events quickly and review them with hourly, daily, weekly, and monthly charts.",

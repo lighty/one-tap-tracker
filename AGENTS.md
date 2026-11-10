@@ -17,11 +17,12 @@
 ファイル名は機能単位で分かるように付けます。例: `src/tracker.ts`、`tests/tracker.test.ts`
 
 ## ビルド・テスト・開発コマンド
-まだビルドツールやテストランナーは導入していません。現時点の主要確認コマンドは以下です。
+ビルドツールはまだ導入していません。共通の入口は `package.json` の scripts です。
 
 - `ls -la`: ワークスペースの確認
 - `find . -maxdepth 2`: ディレクトリ構成の確認
-- `node --check main.js`: プラグイン本体の構文確認
+- `npm run check`: プラグイン本体の構文確認（`node --check main.js`）
+- `npm test`: 自動テストの実行（Node.js 標準の `node --test`）
 
 新しいツールチェーンを導入する場合は、`Makefile` や package scripts など、共通の入口を用意し、`README.md` とこのファイルの両方を更新してください。
 
@@ -34,7 +35,7 @@ Markdown、JSON、YAML、フロントエンドコードは原則 2 スペース�
 - 最初の実装時に formatter と linter を追加する
 
 ## テスト方針
-まだテストフレームワークは設定されていません。最初の本番コードを追加する時点で、自動テストも合わせて導入してください。テスト名は採用技術に合わせて統一します。例: `tracker.test.ts`、`tracker_spec.rb`
+テストは Node.js 標準のテストランナー（`node --test`）を使い、`tests/*.test.js` に置きます。`main.js` が読み込む `obsidian` モジュールはテスト内でスタブに差し替えます（`tests/migration.test.js` を参照）。
 
 新機能や不具合修正には、可能な限り最低 1 件の自動テストを追加してください。テストコマンドが決まったら、この文書にも追記します。
 

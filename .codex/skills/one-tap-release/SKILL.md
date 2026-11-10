@@ -1,11 +1,11 @@
 ---
-name: pebble-release
-description: Pebble Tracker リポジトリで、変更をコミットし、リモートへ push し、リリースタグを切り、GitHub Release を作成するときに使う。manifest.json と versions.json の version 整合、release assets、本文作成、push 権限エラー時の扱いまで含めた公開フロー用 skill。
+name: one-tap-release
+description: One-Tap Tracker リポジトリで、変更をコミットし、リモートへ push し、リリースタグを切り、GitHub Release を作成するときに使う。manifest.json と versions.json の version 整合、release assets、本文作成、push 権限エラー時の扱いまで含めた公開フロー用 skill。
 ---
 
-# Pebble Release
+# One-Tap Release
 
-この skill は Pebble Tracker の公開作業を一貫して進めるときに使う。
+この skill は One-Tap Tracker の公開作業を一貫して進めるときに使う。
 
 対象:
 - 変更をコミットする
@@ -15,7 +15,7 @@ description: Pebble Tracker リポジトリで、変更をコミットし、リ�
 
 ## 前提
 
-- リポジトリは `lighty/pebble-tracker`
+- リポジトリは `lighty/one-tap-tracker`
 - Release assets は `manifest.json`, `main.js`, `styles.css`
 - バージョンは `manifest.json` と `versions.json` の両方で整合している必要がある
 - GitHub Release 作成は `gh release create` を使う
@@ -48,7 +48,8 @@ description: Pebble Tracker リポジトリで、変更をコミットし、リ�
 - `manifest.json` の `version` と `versions.json` のエントリを同じ `X.Y.Z` に更新する
 
 3. 最低限の確認を行う
-- `node --check main.js`
+- `npm run check`
+- `npm test`
 - 必要なら `git diff -- ...` で release 対象差分を確認する
 
 4. コミットする
@@ -91,8 +92,8 @@ description: Pebble Tracker リポジトリで、変更をコミットし、リ�
 ```
 
 8. GitHub Release を作る
-- `gh release view vX.Y.Z --repo lighty/pebble-tracker` で既存 release を確認する
-- 未作成なら `gh release create vX.Y.Z manifest.json main.js styles.css --repo lighty/pebble-tracker --title "vX.Y.Z" --notes-file <notes-file>`
+- `gh release view vX.Y.Z --repo lighty/one-tap-tracker` で既存 release を確認する
+- 未作成なら `gh release create vX.Y.Z manifest.json main.js styles.css --repo lighty/one-tap-tracker --title "vX.Y.Z" --notes-file <notes-file>`
 - 承認が必要な環境では `["gh", "release", "create"]` の `prefix_rule` を付ける
 
 ## 注意点

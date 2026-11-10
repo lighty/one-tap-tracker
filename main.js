@@ -9,15 +9,34 @@ const {
   setIcon,
 } = require("obsidian");
 
-const VIEW_TYPE_PEBBLE_TRACKER = "pebble-tracker-view";
-const RECORDS_CSV_PATH = "PebbleTracker/records.csv.md";
-const SETTINGS_JSON_PATH = "PebbleTracker/settings.json.md";
+const VIEW_TYPE_ONE_TAP_TRACKER = "one-tap-tracker-view";
+const STORAGE_FOLDER_PATH = "OneTapTracker";
+const LEGACY_STORAGE_FOLDER_PATH = "PebbleTracker";
+const RECORDS_CSV_PATH = `${STORAGE_FOLDER_PATH}/records.csv.md`;
+const SETTINGS_JSON_PATH = `${STORAGE_FOLDER_PATH}/settings.json.md`;
 const RECORDS_CSV_HEADERS = ["id", "eventTypeId", "timestamp", "memo"];
 const DEFAULT_DATA = {
   eventTypes: [],
   selectedEventTypeId: null,
 };
 const INITIAL_RECENT_RECORDS_LIMIT = 8;
+
+// Pebble Tracker 時代の保存先フォルダを新しい名前へ移す。
+// 新フォルダが既にある場合は、データを上書きしないよう何もしない。
+async function migrateLegacyStorageFolder(vault) {
+  const legacyFolder = vault.getAbstractFileByPath(
+    normalizePath(LEGACY_STORAGE_FOLDER_PATH),
+  );
+  if (!legacyFolder || !Array.isArray(legacyFolder.children)) {
+    return false;
+  }
+  if (vault.getAbstractFileByPath(normalizePath(STORAGE_FOLDER_PATH))) {
+    return false;
+  }
+
+  await vault.rename(legacyFolder, normalizePath(STORAGE_FOLDER_PATH));
+  return true;
+}
 
 function createId(prefix) {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -477,13 +496,14 @@ function aggregateCounts(records, range, granularity) {
     }));
 }
 
-class PebbleTrackerStore {
+class OneTapTrackerStore {
   constructor(plugin) {
     this.plugin = plugin;
     this.data = { ...cloneData(DEFAULT_DATA), records: [] };
   }
 
   async load() {
+    await migrateLegacyStorageFolder(this.plugin.app.vault);
     const settingsFromVault = await this.loadSettingsFromVault();
     this.data = {
       eventTypes: settingsFromVault?.eventTypes ?? [],
@@ -687,7 +707,7 @@ class EventFormModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("pebble-modal");
+    contentEl.addClass("one-tap-modal");
 
     contentEl.createEl("h2", {
       text: this.options.mode === "edit" ? "イベントを編集" : "イベントを追加",
@@ -729,7 +749,7 @@ class EventFormModal extends Modal {
         }),
       );
 
-    const actionsEl = contentEl.createDiv({ cls: "pebble-modal-actions" });
+    const actionsEl = contentEl.createDiv({ cls: "one-tap-modal-actions" });
     const cancelButton = actionsEl.createEl("button", { text: "キャンセル" });
     cancelButton.addEventListener("click", () => this.close());
 
@@ -767,14 +787,14 @@ class ConfirmDeleteModal extends Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("pebble-modal");
+    contentEl.addClass("one-tap-modal");
 
     contentEl.createEl("h2", { text: "イベントを削除" });
     contentEl.createEl("p", {
       text: `「${this.options.name}」を削除します。関連する記録もすべて削除されます。`,
     });
 
-    const actionsEl = contentEl.createDiv({ cls: "pebble-modal-actions" });
+    const actionsEl = contentEl.createDiv({ cls: "one-tap-modal-actions" });
     const cancelButton = actionsEl.createEl("button", { text: "キャンセル" });
     cancelButton.addEventListener("click", () => this.close());
 
@@ -806,28 +826,28 @@ class EventPickerModal extends Modal {
   render() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("pebble-modal");
+    contentEl.addClass("one-tap-modal");
 
     contentEl.createEl("h2", { text: "イベントを切り替え" });
 
-    const listEl = contentEl.createDiv({ cls: "pebble-event-list" });
+    const listEl = contentEl.createDiv({ cls: "one-tap-event-list" });
     const eventTypes = this.plugin.store.getEventTypes();
 
     if (eventTypes.length === 0) {
       listEl.createEl("p", {
         text: "イベントがありません。最初のイベントを追加してください。",
-        cls: "pebble-empty-text",
+        cls: "one-tap-empty-text",
       });
     }
 
     for (const eventType of eventTypes) {
-      const rowEl = listEl.createDiv({ cls: "pebble-event-row" });
-      rowEl.style.setProperty("--pebble-event-color", eventType.color);
+      const rowEl = listEl.createDiv({ cls: "one-tap-event-row" });
+      rowEl.style.setProperty("--one-tap-event-color", eventType.color);
 
       const mainButton = rowEl.createEl("button", {
-        cls: "pebble-event-select-button",
+        cls: "one-tap-event-select-button",
       });
-      const iconEl = mainButton.createSpan({ cls: "pebble-event-icon" });
+      const iconEl = mainButton.createSpan({ cls: "one-tap-event-icon" });
       setIcon(iconEl, eventType.icon || "circle");
       iconEl.style.color = eventType.color;
       mainButton.createSpan({ text: eventType.name });
@@ -837,7 +857,7 @@ class EventPickerModal extends Modal {
         this.close();
       });
 
-      const actionEl = rowEl.createDiv({ cls: "pebble-event-row-actions" });
+      const actionEl = rowEl.createDiv({ cls: "one-tap-event-row-actions" });
 
       const editButton = actionEl.createEl("button", { text: "編集" });
       editButton.addEventListener("click", () => {
@@ -868,7 +888,7 @@ class EventPickerModal extends Modal {
       });
     }
 
-    const footerEl = contentEl.createDiv({ cls: "pebble-modal-actions" });
+    const footerEl = contentEl.createDiv({ cls: "one-tap-modal-actions" });
     const addButton = footerEl.createEl("button", {
       text: "イベントを追加",
       cls: "mod-cta",
@@ -890,7 +910,7 @@ class EventPickerModal extends Modal {
   }
 }
 
-class PebbleTrackerView extends ItemView {
+class OneTapTrackerView extends ItemView {
   constructor(leaf, plugin) {
     super(leaf);
     this.plugin = plugin;
@@ -909,11 +929,11 @@ class PebbleTrackerView extends ItemView {
   }
 
   getViewType() {
-    return VIEW_TYPE_PEBBLE_TRACKER;
+    return VIEW_TYPE_ONE_TAP_TRACKER;
   }
 
   getDisplayText() {
-    return "Pebble Tracker";
+    return "One-Tap Tracker";
   }
 
   getIcon() {
@@ -929,23 +949,23 @@ class PebbleTrackerView extends ItemView {
   async render() {
     const container = this.containerEl.children[1];
     container.empty();
-    container.addClass("pebble-root");
+    container.addClass("one-tap-root");
 
     const data = this.plugin.store.getData();
     const selectedEventType = this.plugin.store.getSelectedEventType();
 
-    const headerEl = container.createDiv({ cls: "pebble-header" });
+    const headerEl = container.createDiv({ cls: "one-tap-header" });
     const titleBlockEl = headerEl.createDiv();
     titleBlockEl.createEl("div", {
-      text: "Pebble Tracker",
-      cls: "pebble-eyebrow",
+      text: "One-Tap Tracker",
+      cls: "one-tap-eyebrow",
     });
     titleBlockEl.createEl("h1", {
       text: selectedEventType?.name ?? "イベント未選択",
-      cls: "pebble-title",
+      cls: "one-tap-title",
     });
 
-    const headerActionsEl = headerEl.createDiv({ cls: "pebble-header-actions" });
+    const headerActionsEl = headerEl.createDiv({ cls: "one-tap-header-actions" });
     const pickerButton = headerActionsEl.createEl("button", { text: "イベント切替" });
     pickerButton.addEventListener("click", () => {
       new EventPickerModal(this.app, this.plugin).open();
@@ -973,7 +993,7 @@ class PebbleTrackerView extends ItemView {
   }
 
   renderEmptyState(container) {
-    const emptyEl = container.createDiv({ cls: "pebble-empty-state" });
+    const emptyEl = container.createDiv({ cls: "one-tap-empty-state" });
     emptyEl.createEl("p", {
       text: "まだイベントがありません。最初のイベントを追加してください。",
     });
@@ -994,17 +1014,17 @@ class PebbleTrackerView extends ItemView {
   }
 
   renderTracker(container, selectedEventType) {
-    const cardEl = container.createDiv({ cls: "pebble-card pebble-tracker-card" });
+    const cardEl = container.createDiv({ cls: "one-tap-card one-tap-tracker-card" });
     cardEl.createEl("div", {
       text: "すばやく記録",
-      cls: "pebble-section-title",
+      cls: "one-tap-section-title",
     });
 
     if (selectedEventType?.allowMemo) {
-      const fieldEl = cardEl.createDiv({ cls: "pebble-field" });
+      const fieldEl = cardEl.createDiv({ cls: "one-tap-field" });
       fieldEl.createEl("label", { text: "メモ" });
       this.memoInputEl = fieldEl.createEl("textarea", {
-        cls: "pebble-memo-input",
+        cls: "one-tap-memo-input",
       });
       this.memoInputEl.placeholder = "必要ならメモを残す";
       this.memoInputEl.rows = 3;
@@ -1014,7 +1034,7 @@ class PebbleTrackerView extends ItemView {
 
     const recordButton = cardEl.createEl("button", {
       text: `${selectedEventType?.name ?? "イベント"} を記録する`,
-      cls: "mod-cta pebble-record-button",
+      cls: "mod-cta one-tap-record-button",
     });
     recordButton.addEventListener("click", async () => {
       if (!selectedEventType) {
@@ -1036,10 +1056,10 @@ class PebbleTrackerView extends ItemView {
       this.plugin.refreshViews();
     });
 
-    const recentEl = container.createDiv({ cls: "pebble-card" });
+    const recentEl = container.createDiv({ cls: "one-tap-card" });
     recentEl.createEl("div", {
       text: "直近の記録",
-      cls: "pebble-section-title",
+      cls: "one-tap-section-title",
     });
 
     const selectedEventTypeId = selectedEventType?.id ?? null;
@@ -1062,12 +1082,12 @@ class PebbleTrackerView extends ItemView {
     if (recentRecords.length === 0) {
       recentEl.createEl("p", {
         text: "まだ記録がありません。",
-        cls: "pebble-empty-text",
+        cls: "one-tap-empty-text",
       });
       return;
     }
 
-    const listScrollEl = recentEl.createDiv({ cls: "pebble-record-list-scroll" });
+    const listScrollEl = recentEl.createDiv({ cls: "one-tap-record-list-scroll" });
     listScrollEl.addEventListener("scroll", () => {
       this.recentRecordsScrollTop = listScrollEl.scrollTop;
     });
@@ -1090,16 +1110,16 @@ class PebbleTrackerView extends ItemView {
       });
     }
 
-    const listEl = listScrollEl.createDiv({ cls: "pebble-record-list" });
+    const listEl = listScrollEl.createDiv({ cls: "one-tap-record-list" });
     for (const record of recentRecords) {
-      const rowEl = listEl.createDiv({ cls: "pebble-record-row" });
+      const rowEl = listEl.createDiv({ cls: "one-tap-record-row" });
       rowEl.createSpan({
         text: `${formatDateLabel(record.timestamp)} ${formatTimeLabel(record.timestamp)}`,
-        cls: "pebble-record-time",
+        cls: "one-tap-record-time",
       });
       rowEl.createSpan({
         text: record.memo || "メモなし",
-        cls: "pebble-record-memo",
+        cls: "one-tap-record-memo",
       });
     }
 
@@ -1111,7 +1131,7 @@ class PebbleTrackerView extends ItemView {
 
   renderStats(container, selectedEventType) {
     const previousChartScrollLeft = this.chartScrollLeft;
-    const cardEl = container.createDiv({ cls: "pebble-card" });
+    const cardEl = container.createDiv({ cls: "one-tap-card" });
     cardEl.createEl("div", {
       text:
         this.granularity === "hour"
@@ -1121,10 +1141,10 @@ class PebbleTrackerView extends ItemView {
             : this.granularity === "week"
               ? "週別集計"
               : "月別集計",
-      cls: "pebble-section-title",
+      cls: "one-tap-section-title",
     });
 
-    const granularityEl = cardEl.createDiv({ cls: "pebble-range-switcher" });
+    const granularityEl = cardEl.createDiv({ cls: "one-tap-range-switcher" });
     for (const granularity of ["hour", "day", "week", "month"]) {
       const button = granularityEl.createEl("button", {
         text:
@@ -1157,7 +1177,7 @@ class PebbleTrackerView extends ItemView {
           ? ["7w", "all"]
           : ["12m", "all"];
 
-    const rangeEl = cardEl.createDiv({ cls: "pebble-range-switcher" });
+    const rangeEl = cardEl.createDiv({ cls: "one-tap-range-switcher" });
     if (!availableRanges.includes(this.range)) {
       this.range = availableRanges[0];
       this.selectedDate = null;
@@ -1207,14 +1227,14 @@ class PebbleTrackerView extends ItemView {
     const maxCount =
       aggregatedCounts.reduce((max, item) => Math.max(max, item.count), 0) || 1;
 
-    const chartEl = cardEl.createDiv({ cls: "pebble-chart" });
+    const chartEl = cardEl.createDiv({ cls: "one-tap-chart" });
     chartEl.addEventListener("scroll", () => {
       this.chartScrollLeft = chartEl.scrollLeft;
     });
     if (aggregatedCounts.length === 0) {
       chartEl.createEl("p", {
         text: "対象期間の記録がありません。",
-        cls: "pebble-empty-text",
+        cls: "one-tap-empty-text",
       });
     } else {
       const pointGap = 44;
@@ -1233,11 +1253,11 @@ class PebbleTrackerView extends ItemView {
         return { ...item, x, y };
       });
 
-      const canvasEl = chartEl.createDiv({ cls: "pebble-line-chart-canvas" });
+      const canvasEl = chartEl.createDiv({ cls: "one-tap-line-chart-canvas" });
       canvasEl.style.width = `${svgWidth}px`;
 
       const svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      svgEl.setAttribute("class", "pebble-line-chart-svg");
+      svgEl.setAttribute("class", "one-tap-line-chart-svg");
       svgEl.setAttribute("viewBox", `0 0 ${svgWidth} ${svgHeight}`);
       svgEl.setAttribute("width", String(svgWidth));
       svgEl.setAttribute("height", String(svgHeight));
@@ -1255,7 +1275,7 @@ class PebbleTrackerView extends ItemView {
         "http://www.w3.org/2000/svg",
         "polygon",
       );
-      areaEl.setAttribute("class", "pebble-line-chart-area");
+      areaEl.setAttribute("class", "one-tap-line-chart-area");
       areaEl.setAttribute("points", areaPoints);
       svgEl.appendChild(areaEl);
 
@@ -1263,7 +1283,7 @@ class PebbleTrackerView extends ItemView {
         "http://www.w3.org/2000/svg",
         "polyline",
       );
-      lineEl.setAttribute("class", "pebble-line-chart-line");
+      lineEl.setAttribute("class", "one-tap-line-chart-line");
       lineEl.setAttribute("points", polylinePoints);
       svgEl.appendChild(lineEl);
 
@@ -1272,7 +1292,7 @@ class PebbleTrackerView extends ItemView {
           "http://www.w3.org/2000/svg",
           "circle",
         );
-        dotEl.setAttribute("class", "pebble-line-chart-dot");
+        dotEl.setAttribute("class", "one-tap-line-chart-dot");
         if (point.key === this.selectedDate) {
           dotEl.classList.add("is-selected");
         }
@@ -1287,12 +1307,12 @@ class PebbleTrackerView extends ItemView {
 
       canvasEl.appendChild(svgEl);
 
-      const markersEl = chartEl.createDiv({ cls: "pebble-line-chart-markers" });
+      const markersEl = chartEl.createDiv({ cls: "one-tap-line-chart-markers" });
       markersEl.style.width = `${svgWidth}px`;
-      const labelsEl = chartEl.createDiv({ cls: "pebble-line-chart-labels" });
+      const labelsEl = chartEl.createDiv({ cls: "one-tap-line-chart-labels" });
       labelsEl.style.width = `${svgWidth}px`;
       for (const [index, point] of linePoints.entries()) {
-        const markerEl = markersEl.createDiv({ cls: "pebble-line-chart-marker" });
+        const markerEl = markersEl.createDiv({ cls: "one-tap-line-chart-marker" });
         if (point.key === this.selectedDate) {
           markerEl.addClass("is-selected");
         }
@@ -1305,13 +1325,13 @@ class PebbleTrackerView extends ItemView {
 
         const countEl = markerEl.createSpan({
           text: String(point.count),
-          cls: "pebble-chart-count",
+          cls: "one-tap-chart-count",
         });
         if (point.count === 0) {
           countEl.addClass("is-zero");
         }
 
-        const labelSlotEl = labelsEl.createDiv({ cls: "pebble-line-chart-label-slot" });
+        const labelSlotEl = labelsEl.createDiv({ cls: "one-tap-line-chart-label-slot" });
         labelSlotEl.style.left = `${point.x}px`;
         if (point.key === this.selectedDate) {
           labelSlotEl.addClass("is-selected");
@@ -1324,12 +1344,12 @@ class PebbleTrackerView extends ItemView {
         );
         labelSlotEl.createSpan({
           text: primaryLabel,
-          cls: "pebble-chart-label-primary",
+          cls: "one-tap-chart-label-primary",
         });
         if (secondaryLabel) {
           labelSlotEl.createSpan({
             text: secondaryLabel,
-            cls: "pebble-chart-label-secondary",
+            cls: "one-tap-chart-label-secondary",
           });
         }
       }
@@ -1353,7 +1373,7 @@ class PebbleTrackerView extends ItemView {
       });
     }
 
-    const tableEl = container.createDiv({ cls: "pebble-card" });
+    const tableEl = container.createDiv({ cls: "one-tap-card" });
     tableEl.createEl("div", {
       text:
         this.granularity === "hour"
@@ -1363,18 +1383,18 @@ class PebbleTrackerView extends ItemView {
           : this.granularity === "week"
             ? "週別一覧"
             : "月別一覧",
-      cls: "pebble-section-title",
+      cls: "one-tap-section-title",
     });
 
     if (aggregatedCounts.length === 0) {
       tableEl.createEl("p", {
         text: "表示できる集計がありません。",
-        cls: "pebble-empty-text",
+        cls: "one-tap-empty-text",
       });
     } else {
-      const listEl = tableEl.createDiv({ cls: "pebble-daily-list" });
+      const listEl = tableEl.createDiv({ cls: "one-tap-daily-list" });
       for (const item of [...aggregatedCounts].reverse()) {
-        const rowEl = listEl.createDiv({ cls: "pebble-daily-row" });
+        const rowEl = listEl.createDiv({ cls: "one-tap-daily-row" });
         if (item.key === this.selectedDate) {
           rowEl.addClass("is-selected");
         }
@@ -1387,12 +1407,12 @@ class PebbleTrackerView extends ItemView {
       }
     }
 
-    const detailEl = container.createDiv({ cls: "pebble-card" });
+    const detailEl = container.createDiv({ cls: "one-tap-card" });
     detailEl.createEl("div", {
       text: this.selectedDate
         ? `${formatBucketLabel(this.selectedDate, this.granularity)} の記録`
         : "記録一覧",
-      cls: "pebble-section-title",
+      cls: "one-tap-section-title",
     });
 
     const recordsForDay = records.filter(
@@ -1402,49 +1422,49 @@ class PebbleTrackerView extends ItemView {
     if (recordsForDay.length === 0) {
       detailEl.createEl("p", {
         text: this.granularity === "hour" ? "この時間帯の記録はありません。" : "この日の記録はありません。",
-        cls: "pebble-empty-text",
+        cls: "one-tap-empty-text",
       });
       return;
     }
 
-    const detailListEl = detailEl.createDiv({ cls: "pebble-record-list" });
+    const detailListEl = detailEl.createDiv({ cls: "one-tap-record-list" });
     for (const record of recordsForDay) {
-      const rowEl = detailListEl.createDiv({ cls: "pebble-record-row" });
+      const rowEl = detailListEl.createDiv({ cls: "one-tap-record-row" });
       rowEl.createSpan({
         text:
           this.granularity === "hour"
             ? `${formatDateLabel(record.timestamp)} ${formatTimeLabel(record.timestamp)}`
             : formatTimeLabel(record.timestamp),
-        cls: "pebble-record-time",
+        cls: "one-tap-record-time",
       });
       rowEl.createSpan({
         text: record.memo || "メモなし",
-        cls: "pebble-record-memo",
+        cls: "one-tap-record-memo",
       });
     }
   }
 }
 
-module.exports = class PebbleTrackerPlugin extends Plugin {
+module.exports = class OneTapTrackerPlugin extends Plugin {
   async onload() {
-    this.store = new PebbleTrackerStore(this);
+    this.store = new OneTapTrackerStore(this);
     this.storeLoaded = false;
     this.storeLoadPromise = null;
 
     this.registerView(
-      VIEW_TYPE_PEBBLE_TRACKER,
-      (leaf) => new PebbleTrackerView(leaf, this),
+      VIEW_TYPE_ONE_TAP_TRACKER,
+      (leaf) => new OneTapTrackerView(leaf, this),
     );
 
     this.addCommand({
-      id: "open-pebble-tracker",
-      name: "Open Pebble Tracker",
+      id: "open-one-tap-tracker",
+      name: "Open One-Tap Tracker",
       callback: async () => {
         await this.activateView();
       },
     });
 
-    this.addRibbonIcon("activity", "Open Pebble Tracker", async () => {
+    this.addRibbonIcon("activity", "Open One-Tap Tracker", async () => {
       await this.activateView();
     });
 
@@ -1524,7 +1544,7 @@ module.exports = class PebbleTrackerPlugin extends Plugin {
   }
 
   async onunload() {
-    await this.app.workspace.detachLeavesOfType(VIEW_TYPE_PEBBLE_TRACKER);
+    await this.app.workspace.detachLeavesOfType(VIEW_TYPE_ONE_TAP_TRACKER);
   }
 
   async ensureStoreLoaded() {
@@ -1543,7 +1563,7 @@ module.exports = class PebbleTrackerPlugin extends Plugin {
         this.storeLoaded = true;
         this.refreshViews();
       } catch (error) {
-        console.error("Pebble Tracker: failed to load data", error);
+        console.error("One-Tap Tracker: failed to load data", error);
       } finally {
         this.storeLoadPromise = null;
       }
@@ -1556,12 +1576,12 @@ module.exports = class PebbleTrackerPlugin extends Plugin {
     await this.ensureStoreLoaded();
 
     const { workspace } = this.app;
-    let leaf = workspace.getLeavesOfType(VIEW_TYPE_PEBBLE_TRACKER)[0];
+    let leaf = workspace.getLeavesOfType(VIEW_TYPE_ONE_TAP_TRACKER)[0];
 
     if (!leaf) {
       leaf = workspace.getLeaf(true);
       await leaf.setViewState({
-        type: VIEW_TYPE_PEBBLE_TRACKER,
+        type: VIEW_TYPE_ONE_TAP_TRACKER,
         active: true,
       });
     }
@@ -1572,11 +1592,13 @@ module.exports = class PebbleTrackerPlugin extends Plugin {
 
   refreshViews() {
     this.app.workspace
-      .getLeavesOfType(VIEW_TYPE_PEBBLE_TRACKER)
+      .getLeavesOfType(VIEW_TYPE_ONE_TAP_TRACKER)
       .forEach((leaf) => {
-        if (leaf.view instanceof PebbleTrackerView) {
+        if (leaf.view instanceof OneTapTrackerView) {
           void leaf.view.render();
         }
       });
   }
 };
+
+module.exports.migrateLegacyStorageFolder = migrateLegacyStorageFolder;

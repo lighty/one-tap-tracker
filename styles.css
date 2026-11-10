@@ -1,17 +1,17 @@
-.pebble-root {
-  --pebble-bg: color-mix(in srgb, var(--background-primary) 88%, var(--interactive-accent) 12%);
-  --pebble-panel: var(--background-primary);
-  --pebble-border: var(--background-modifier-border);
-  --pebble-muted: var(--text-muted);
-  --pebble-accent: var(--interactive-accent);
+.one-tap-root {
+  --one-tap-bg: color-mix(in srgb, var(--background-primary) 88%, var(--interactive-accent) 12%);
+  --one-tap-panel: var(--background-primary);
+  --one-tap-border: var(--background-modifier-border);
+  --one-tap-muted: var(--text-muted);
+  --one-tap-accent: var(--interactive-accent);
   padding: 16px;
   background:
     radial-gradient(circle at top right, color-mix(in srgb, var(--interactive-accent) 18%, transparent) 0, transparent 35%),
-    linear-gradient(180deg, var(--pebble-bg) 0%, var(--background-secondary) 100%);
+    linear-gradient(180deg, var(--one-tap-bg) 0%, var(--background-secondary) 100%);
   min-height: 100%;
 }
 
-.pebble-header {
+.one-tap-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -19,56 +19,56 @@
   margin-bottom: 16px;
 }
 
-.pebble-eyebrow {
-  color: var(--pebble-muted);
+.one-tap-eyebrow {
+  color: var(--one-tap-muted);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
-.pebble-title {
+.one-tap-title {
   margin: 4px 0 0;
   font-size: 28px;
   line-height: 1.1;
 }
 
-.pebble-header-actions {
+.one-tap-header-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.pebble-card {
-  background: color-mix(in srgb, var(--pebble-panel) 92%, white 8%);
-  border: 1px solid var(--pebble-border);
+.one-tap-card {
+  background: color-mix(in srgb, var(--one-tap-panel) 92%, white 8%);
+  border: 1px solid var(--one-tap-border);
   border-radius: 18px;
   padding: 16px;
   margin-bottom: 14px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
-.pebble-section-title {
+.one-tap-section-title {
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
 }
 
-.pebble-field {
+.one-tap-field {
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.pebble-memo-input {
+.one-tap-memo-input {
   width: 100%;
   resize: vertical;
   border-radius: 12px;
   padding: 12px;
 }
 
-.pebble-record-button {
+.one-tap-record-button {
   width: 100%;
   min-height: 56px;
   border-radius: 16px;
@@ -77,24 +77,24 @@
   margin-top: 4px;
 }
 
-.pebble-record-list,
-.pebble-daily-list,
-.pebble-event-list {
+.one-tap-record-list,
+.one-tap-daily-list,
+.one-tap-event-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pebble-record-list-scroll {
+.one-tap-record-list-scroll {
   max-height: 520px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
 }
 
-.pebble-record-row,
-.pebble-daily-row,
-.pebble-event-row {
+.one-tap-record-row,
+.one-tap-daily-row,
+.one-tap-event-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -104,38 +104,38 @@
   background: color-mix(in srgb, var(--background-secondary) 82%, white 18%);
 }
 
-.pebble-record-row,
-.pebble-daily-row {
+.one-tap-record-row,
+.one-tap-daily-row {
   align-items: flex-start;
 }
 
-.pebble-record-row {
+.one-tap-record-row {
   flex-direction: column;
 }
 
-.pebble-record-time {
+.one-tap-record-time {
   font-weight: 600;
 }
 
-.pebble-record-memo,
-.pebble-empty-text {
-  color: var(--pebble-muted);
+.one-tap-record-memo,
+.one-tap-empty-text {
+  color: var(--one-tap-muted);
 }
 
-.pebble-range-switcher {
+.one-tap-range-switcher {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.pebble-range-switcher button.is-active,
-.pebble-daily-row.is-selected {
-  background: color-mix(in srgb, var(--pebble-accent) 18%, var(--background-secondary) 82%);
-  border-color: color-mix(in srgb, var(--pebble-accent) 32%, var(--pebble-border) 68%);
+.one-tap-range-switcher button.is-active,
+.one-tap-daily-row.is-selected {
+  background: color-mix(in srgb, var(--one-tap-accent) 18%, var(--background-secondary) 82%);
+  border-color: color-mix(in srgb, var(--one-tap-accent) 32%, var(--one-tap-border) 68%);
 }
 
-.pebble-chart {
+.one-tap-chart {
   position: relative;
   min-height: 236px;
   overflow-x: auto;
@@ -144,33 +144,33 @@
   scrollbar-width: thin;
 }
 
-.pebble-line-chart-canvas {
+.one-tap-line-chart-canvas {
   position: relative;
   height: 164px;
 }
 
-.pebble-line-chart-svg {
+.one-tap-line-chart-svg {
   display: block;
 }
 
-.pebble-line-chart-area {
+.one-tap-line-chart-area {
   fill: none;
 }
 
-.pebble-line-chart-line {
+.one-tap-line-chart-line {
   fill: none;
-  stroke: color-mix(in srgb, var(--pebble-accent) 80%, white 20%);
+  stroke: color-mix(in srgb, var(--one-tap-accent) 80%, white 20%);
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
-.pebble-line-chart-markers {
+.one-tap-line-chart-markers {
   position: absolute;
   inset: 0 0 52px 0;
 }
 
-.pebble-line-chart-marker {
+.one-tap-line-chart-marker {
   position: absolute;
   transform: translate(-50%, -50%);
   display: flex;
@@ -182,7 +182,7 @@
   height: 44px;
 }
 
-.pebble-line-chart-labels {
+.one-tap-line-chart-labels {
   position: absolute;
   left: 0;
   right: 0;
@@ -190,7 +190,7 @@
   height: 48px;
 }
 
-.pebble-line-chart-label-slot {
+.one-tap-line-chart-label-slot {
   position: absolute;
   bottom: 0;
   transform: translateX(-50%);
@@ -200,47 +200,47 @@
   gap: 2px;
 }
 
-.pebble-chart-count {
+.one-tap-chart-count {
   font-size: 12px;
   font-weight: 600;
 }
 
-.pebble-line-chart-dot {
+.one-tap-line-chart-dot {
   fill: var(--background-primary);
-  stroke: color-mix(in srgb, var(--pebble-accent) 82%, white 18%);
+  stroke: color-mix(in srgb, var(--one-tap-accent) 82%, white 18%);
   stroke-width: 1.5;
 }
 
-.pebble-line-chart-dot.is-selected {
+.one-tap-line-chart-dot.is-selected {
   fill: #d6a267;
   stroke: #9a6e45;
 }
 
-.pebble-line-chart-marker.is-selected .pebble-chart-count {
+.one-tap-line-chart-marker.is-selected .one-tap-chart-count {
   color: #9a6e45;
 }
 
-.pebble-chart-label-primary,
-.pebble-chart-label-secondary {
+.one-tap-chart-label-primary,
+.one-tap-chart-label-secondary {
   font-size: 10px;
-  color: var(--pebble-muted);
+  color: var(--one-tap-muted);
   white-space: nowrap;
 }
 
-.pebble-chart-label-primary {
+.one-tap-chart-label-primary {
   line-height: 1;
 }
 
-.pebble-chart-label-secondary {
+.one-tap-chart-label-secondary {
   line-height: 1;
 }
 
-.pebble-line-chart-label-slot.is-selected .pebble-chart-label-primary,
-.pebble-line-chart-label-slot.is-selected .pebble-chart-label-secondary {
+.one-tap-line-chart-label-slot.is-selected .one-tap-chart-label-primary,
+.one-tap-line-chart-label-slot.is-selected .one-tap-chart-label-secondary {
   color: color-mix(in srgb, #9a6e45 82%, var(--text-normal) 18%);
 }
 
-.pebble-empty-state {
+.one-tap-empty-state {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -248,18 +248,18 @@
   padding: 12px 0;
 }
 
-.pebble-modal-actions {
+.one-tap-modal-actions {
   display: flex;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 16px;
 }
 
-.pebble-event-row {
-  --pebble-event-color: var(--interactive-accent);
+.one-tap-event-row {
+  --one-tap-event-color: var(--interactive-accent);
 }
 
-.pebble-event-select-button {
+.one-tap-event-select-button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -267,48 +267,48 @@
   text-align: left;
 }
 
-.pebble-event-row-actions {
+.one-tap-event-row-actions {
   display: flex;
   gap: 8px;
 }
 
-.pebble-event-dot {
+.one-tap-event-dot {
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: var(--pebble-event-color);
+  background: var(--one-tap-event-color);
   display: inline-block;
 }
 
-.pebble-event-icon {
+.one-tap-event-icon {
   display: flex;
   align-items: center;
 }
 
 @media (max-width: 700px) {
-  .pebble-root {
+  .one-tap-root {
     padding: 12px;
   }
 
-  .pebble-header {
+  .one-tap-header {
     flex-direction: column;
   }
 
-  .pebble-header-actions {
+  .one-tap-header-actions {
     width: 100%;
     justify-content: stretch;
   }
 
-  .pebble-header-actions button {
+  .one-tap-header-actions button {
     flex: 1;
   }
 
-  .pebble-card {
+  .one-tap-card {
     border-radius: 16px;
     padding: 14px;
   }
 
-  .pebble-title {
+  .one-tap-title {
     font-size: 24px;
   }
 }

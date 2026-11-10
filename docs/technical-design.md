@@ -1,8 +1,8 @@
-# Pebble Tracker 技術設計メモ
+# One-Tap Tracker 技術設計メモ
 
 ## 前提
 
-この文書は [`docs/mvp-spec.md`](/Users/lighty/ghq/github.com/lighty/pebble-tracker/docs/mvp-spec.md) を実装に落とすための技術設計メモである。MVP では Obsidian プラグインとして最小限の責務分離を行い、スマートフォンでの記録体験を優先する。
+この文書は [`docs/mvp-spec.md`](docs/mvp-spec.md) を実装に落とすための技術設計メモである。MVP では Obsidian プラグインとして最小限の責務分離を行い、スマートフォンでの記録体験を優先する。
 
 ## 想定ディレクトリ構成
 
@@ -51,7 +51,7 @@ export interface EventRecord {
   memo?: string;
 }
 
-export interface PebbleTrackerData {
+export interface OneTapTrackerData {
   eventTypes: EventType[];
   selectedEventTypeId: string | null;
 }
@@ -62,18 +62,18 @@ export interface PebbleTrackerData {
 - `createdAt` は作成順の安定表示に使う
 - `selectedEventTypeId` は前回選択イベント復元に使う
 - `timestamp` は ISO 8601 文字列で保存する
-- イベント定義と選択状態は `PebbleTracker/settings.json.md` に保存する
-- `EventRecord` は `PebbleTracker/records.csv.md` に保存する
+- イベント定義と選択状態は `OneTapTracker/settings.json.md` に保存する
+- `EventRecord` は `OneTapTracker/records.csv.md` に保存する
 
 ## メインフロー
 
 ### 起動時
 
-1. `PebbleTracker/settings.json.md` を読み込む
-2. `PebbleTracker/records.csv.md` を読み込む
+1. `OneTapTracker/settings.json.md` を読み込む
+2. `OneTapTracker/records.csv.md` を読み込む
 3. データが未初期化なら空データを生成する
 4. ビューを登録する
-5. コマンド `Open Pebble Tracker` を登録する
+5. コマンド `Open One-Tap Tracker` を登録する
 6. リボンアイコンを登録する
 
 ### 記録画面を開く
@@ -88,7 +88,7 @@ export interface PebbleTrackerData {
 1. 選択中イベントを確認する
 2. メモ欄の値を読む
 3. 新しい `EventRecord` を生成する
-4. `PebbleTracker/records.csv.md` に保存する
+4. `OneTapTracker/records.csv.md` に保存する
 5. メモ欄をクリアする
 6. 記録一覧と集計を再描画する
 7. 通知を表示する
@@ -112,9 +112,9 @@ export interface PebbleTrackerData {
 ## Store API 案
 
 ```ts
-class PebbleTrackerStore {
-  load(): Promise<PebbleTrackerData>;
-  getData(): PebbleTrackerData;
+class OneTapTrackerStore {
+  load(): Promise<OneTapTrackerData>;
+  getData(): OneTapTrackerData;
   createEventType(input: CreateEventTypeInput): Promise<EventType>;
   updateEventType(id: string, patch: UpdateEventTypeInput): Promise<EventType>;
   deleteEventType(id: string): Promise<void>;
@@ -122,7 +122,7 @@ class PebbleTrackerStore {
   createRecord(input: CreateRecordInput): Promise<EventRecord>;
   listRecordsByEventType(eventTypeId: string): EventRecord[];
   listRecentRecords(eventTypeId: string, limit: number): EventRecord[];
-  loadSettingsFromVault(): Promise<PebbleTrackerData | null>;
+  loadSettingsFromVault(): Promise<OneTapTrackerData | null>;
   saveSettingsToVault(): Promise<void>;
   loadRecordsFromCsv(): Promise<EventRecord[]>;
   saveRecordsToCsv(): Promise<void>;

@@ -1,0 +1,8 @@
+{
+  "name": "one-tap-tracker",
+  "private": true,
+  "scripts": {
+    "check": "node --check main.js",
+    "test": "node --test"
+  }
+}

@@ -1,8 +1,8 @@
-# Pebble Tracker MVP仕様
+# One-Tap Tracker MVP仕様
 
 ## 目的
 
-Pebble Tracker は、ユーザーが任意のイベントを素早く記録し、あとから日単位で振り返れる Obsidian プラグインである。
+One-Tap Tracker は、ユーザーが任意のイベントを素早く記録し、あとから日単位で振り返れる Obsidian プラグインである。
 
 MVP では「回数を記録するイベント」に限定し、最初の代表ユースケースとしてトイレ記録を想定する。ただしプラグイン自体はトイレ専用ではなく、ユーザーが GUI からイベント定義を追加できる構成にする。
 
@@ -17,8 +17,8 @@ MVP では「回数を記録するイベント」に限定し、最初の代表�
 
 ## 導線
 
-- コマンドパレットに `Open Pebble Tracker` を追加する
-- 左リボンに Pebble Tracker のアイコンを追加する
+- コマンドパレットに `Open One-Tap Tracker` を追加する
+- 左リボンに One-Tap Tracker のアイコンを追加する
 - どちらの導線でも専用タブの記録画面を開く
 - 前回選択していたイベントを復元する
 
@@ -128,9 +128,9 @@ MVP のイベント定義は以下の項目を持つ。
 ## 保存方式
 
 - イベント定義と選択状態は Vault 内の JSON ファイルとして保存する
-- 既定パスは `PebbleTracker/settings.json.md` とする
+- 既定パスは `OneTapTracker/settings.json.md` とする
 - 記録レコードは Vault 内の CSV ファイルとして保存する
-- 既定パスは `PebbleTracker/records.csv.md` とする
+- 既定パスは `OneTapTracker/records.csv.md` とする
 - CSV はユーザーが後から再利用・編集しやすいことを優先する
 
 ## MVP で扱わないもの
